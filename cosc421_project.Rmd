@@ -1,0 +1,595 @@
+---
+title: "cosc421_project"
+author: "Angelina Dubrule"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(digits=3)
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
+install.packages("igraph")
+library("igraph")
+```
+
+## Generate Network Graph Whole Network
+
+```{r graph}
+nodes <- read.csv("Data_Nodes.csv", header = T)
+edges <- read.csv("Data_Edges.csv", header = T)
+
+graph <- graph_from_data_frame(edges, nodes, directed = T)
+
+plot(
+  graph,
+  vertex.label = NA,
+  vertex.size = 5,
+  main = "Mobi Vancouver Bike Share Network",
+  edge.arrow.size = 0.5
+)
+```
+
+## In-Degree Whole Network
+
+```{r indeg}
+indeg <- degree(graph, mode = "in")
+cat("In-Degree Distribution:", indeg, "\n\n")
+
+topfive <- order(indeg, decreasing = TRUE)[1:5]
+topnodes <- names(indeg)[topfive]
+topvalues <- indeg[topfive]
+
+cat("Top 5 Nodes by In-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with In-Degree:", topvalues[i], "\n")
+}
+
+hist(
+  indeg,
+  breaks = seq(min(indeg) - 0.5, max(indeg) + 0.5, by = 1),
+  col = "lightblue",
+  border = "black",
+  probability = T,
+  main = "Bike Share In-Degree Distribution",
+  xlab = "In-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(indeg), sd = sd(indeg)), col = "darkblue", lwd = 2, add = T)
+```
+
+## Out-Degree Whole Network
+
+```{r outdeg}
+outdeg <- degree(graph, mode = "out")
+cat("Out-Degree Distribution:", outdeg, "\n\n")
+
+topfive <- order(outdeg, decreasing = TRUE)[1:5]
+topnodes <- names(outdeg)[topfive]
+topvalues <- outdeg[topfive]
+
+cat("Top 5 Nodes by Out-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Out-Degree:", topvalues[i], "\n")
+}
+
+sinks <- names(outdeg)[outdeg == 0 && indeg != 0]
+cat("\nSink Nodes (Out-Degree = 0):\n")
+if (length(sinks) > 0) {
+  cat(sinks, sep = ", ")
+} else {
+  cat("No sink nodes found.")
+}
+
+hist(
+  outdeg,
+  breaks = seq(min(outdeg) - 0.5, max(outdeg) + 0.5, by = 1),
+  col = "lightgreen",
+  border = "black",
+  probability = T,
+  main = "Bike Share Out-Degree Distribution",
+  xlab = "Out-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(outdeg), sd = sd(outdeg)), col = "darkgreen", lwd = 2, add = T)
+```
+
+## Average Degree Whole Network
+
+```{r avgdeg}
+avgdeg <- mean(degree(graph))
+cat("Average Degree:", avgdeg, "\n\n")
+cat("Average In/Out-Degree:", avgdeg / 2)
+```
+
+## Degree Ratio Whole Network
+
+```{r degratio}
+degratio <- indeg / outdeg
+
+topfive <- order(degratio, decreasing = TRUE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("Top 5 Nodes with Highest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+topfive <- order(degratio, decreasing = FALSE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("\nTop 5 Nodes with Lowest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+```
+
+## Generate Network Cluster 1
+
+```{r graph1}
+nodes <- read.csv("Cluster_1_Nodes.csv", header = T)
+edges <- read.csv("Cluster_1_Edges.csv", header = T)
+graph <- graph_from_data_frame(edges, nodes, directed = T)
+```
+
+## In-Degree Cluster 1
+
+```{r indeg1}
+indeg <- degree(graph, mode = "in")
+cat("In-Degree Distribution:", indeg, "\n\n")
+
+topfive <- order(indeg, decreasing = TRUE)[1:5]
+topnodes <- names(indeg)[topfive]
+topvalues <- indeg[topfive]
+
+cat("Top 5 Nodes by In-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with In-Degree:", topvalues[i], "\n")
+}
+
+hist(
+  indeg,
+  breaks = seq(min(indeg) - 0.5, max(indeg) + 0.5, by = 1),
+  col = "lightblue",
+  border = "black",
+  probability = T,
+  main = "Bike Share In-Degree Distribution",
+  xlab = "In-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(indeg), sd = sd(indeg)), col = "darkblue", lwd = 2, add = T)
+```
+
+## Out-Degree Cluster 1
+
+```{r outdeg1}
+outdeg <- degree(graph, mode = "out")
+cat("Out-Degree Distribution:", outdeg, "\n\n")
+
+topfive <- order(outdeg, decreasing = TRUE)[1:5]
+topnodes <- names(outdeg)[topfive]
+topvalues <- outdeg[topfive]
+
+cat("Top 5 Nodes by Out-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Out-Degree:", topvalues[i], "\n")
+}
+
+sinks <- names(outdeg)[outdeg == 0 && indeg != 0]
+cat("\nSink Nodes (Out-Degree = 0):\n")
+if (length(sinks) > 0) {
+  cat(sinks, sep = ", ")
+} else {
+  cat("No sink nodes found.")
+}
+
+hist(
+  outdeg,
+  breaks = seq(min(outdeg) - 0.5, max(outdeg) + 0.5, by = 1),
+  col = "lightgreen",
+  border = "black",
+  probability = T,
+  main = "Bike Share Out-Degree Distribution",
+  xlab = "Out-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(outdeg), sd = sd(outdeg)), col = "darkgreen", lwd = 2, add = T)
+```
+
+## Average Degree Cluster 1
+
+```{r avgdeg1}
+avgdeg <- mean(degree(graph))
+cat("Average Degree:", avgdeg, "\n\n")
+cat("Average In/Out-Degree:", avgdeg / 2)
+```
+
+## Degree Ratio Cluster 1
+
+```{r degratio1}
+degratio <- indeg / outdeg
+
+topfive <- order(degratio, decreasing = TRUE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("Top 5 Nodes with Highest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+topfive <- order(degratio, decreasing = FALSE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("\nTop 5 Nodes with Lowest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+```
+
+## Generate Network Cluster 2
+
+```{r graph2}
+nodes <- read.csv("Cluster_2_Nodes.csv", header = T)
+edges <- read.csv("Cluster_2_Edges.csv", header = T)
+
+graph <- graph_from_data_frame(edges, nodes, directed = T)
+
+plot(
+  graph,
+  vertex.label = NA,
+  vertex.size = 5,
+  main = "Mobi Vancouver Bike Share Network",
+  edge.arrow.size = 0.5
+)
+```
+
+## In-Degree Cluster 2
+
+```{r indeg2}
+indeg <- degree(graph, mode = "in")
+cat("In-Degree Distribution:", indeg, "\n\n")
+
+topfive <- order(indeg, decreasing = TRUE)[1:5]
+topnodes <- names(indeg)[topfive]
+topvalues <- indeg[topfive]
+
+cat("Top 5 Nodes by In-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with In-Degree:", topvalues[i], "\n")
+}
+
+hist(
+  indeg,
+  breaks = seq(min(indeg) - 0.5, max(indeg) + 0.5, by = 1),
+  col = "lightblue",
+  border = "black",
+  probability = T,
+  main = "Bike Share In-Degree Distribution",
+  xlab = "In-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(indeg), sd = sd(indeg)), col = "darkblue", lwd = 2, add = T)
+```
+
+## Out-Degree Cluster 2
+
+```{r outdeg2}
+outdeg <- degree(graph, mode = "out")
+cat("Out-Degree Distribution:", outdeg, "\n\n")
+
+topfive <- order(outdeg, decreasing = TRUE)[1:5]
+topnodes <- names(outdeg)[topfive]
+topvalues <- outdeg[topfive]
+
+cat("Top 5 Nodes by Out-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Out-Degree:", topvalues[i], "\n")
+}
+
+sinks <- names(outdeg)[outdeg == 0 && indeg != 0]
+cat("\nSink Nodes (Out-Degree = 0):\n")
+if (length(sinks) > 0) {
+  cat(sinks, sep = ", ")
+} else {
+  cat("No sink nodes found.")
+}
+
+hist(
+  outdeg,
+  breaks = seq(min(outdeg) - 0.5, max(outdeg) + 0.5, by = 1),
+  col = "lightgreen",
+  border = "black",
+  probability = T,
+  main = "Bike Share Out-Degree Distribution",
+  xlab = "Out-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(outdeg), sd = sd(outdeg)), col = "darkgreen", lwd = 2, add = T)
+```
+
+## Average Degree Cluster 2
+
+```{r avgdeg2}
+avgdeg <- mean(degree(graph))
+cat("Average Degree:", avgdeg, "\n\n")
+cat("Average In/Out-Degree:", avgdeg / 2)
+```
+
+## Degree Ratio Cluster 2
+
+```{r degratio2}
+degratio <- indeg / outdeg
+
+topfive <- order(degratio, decreasing = TRUE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("Top 5 Nodes with Highest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+topfive <- order(degratio, decreasing = FALSE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("\nTop 5 Nodes with Lowest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+```
+
+## Generate Network Cluster 3
+
+```{r graph3}
+nodes <- read.csv("Cluster_3_Nodes.csv", header = T)
+edges <- read.csv("Cluster_3_Edges.csv", header = T)
+
+graph <- graph_from_data_frame(edges, nodes, directed = T)
+
+plot(
+  graph,
+  vertex.label = NA,
+  vertex.size = 5,
+  main = "Mobi Vancouver Bike Share Network",
+  edge.arrow.size = 0.5
+)
+```
+
+## In-Degree Cluster 3
+
+```{r indeg3}
+indeg <- degree(graph, mode = "in")
+cat("In-Degree Distribution:", indeg, "\n\n")
+
+topfive <- order(indeg, decreasing = TRUE)[1:5]
+topnodes <- names(indeg)[topfive]
+topvalues <- indeg[topfive]
+
+cat("Top 5 Nodes by In-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with In-Degree:", topvalues[i], "\n")
+}
+
+hist(
+  indeg,
+  breaks = seq(min(indeg) - 0.5, max(indeg) + 0.5, by = 1),
+  col = "lightblue",
+  border = "black",
+  probability = T,
+  main = "Bike Share In-Degree Distribution",
+  xlab = "In-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(indeg), sd = sd(indeg)), col = "darkblue", lwd = 2, add = T)
+```
+
+## Out-Degree Cluster 3
+
+```{r outdeg3}
+outdeg <- degree(graph, mode = "out")
+cat("Out-Degree Distribution:", outdeg, "\n\n")
+
+topfive <- order(outdeg, decreasing = TRUE)[1:5]
+topnodes <- names(outdeg)[topfive]
+topvalues <- outdeg[topfive]
+
+cat("Top 5 Nodes by Out-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Out-Degree:", topvalues[i], "\n")
+}
+
+sinks <- names(outdeg)[outdeg == 0 && indeg != 0]
+cat("\nSink Nodes (Out-Degree = 0):\n")
+if (length(sinks) > 0) {
+  cat(sinks, sep = ", ")
+} else {
+  cat("No sink nodes found.")
+}
+
+hist(
+  outdeg,
+  breaks = seq(min(outdeg) - 0.5, max(outdeg) + 0.5, by = 1),
+  col = "lightgreen",
+  border = "black",
+  probability = T,
+  main = "Bike Share Out-Degree Distribution",
+  xlab = "Out-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(outdeg), sd = sd(outdeg)), col = "darkgreen", lwd = 2, add = T)
+```
+
+## Average Degree Cluster 3
+
+```{r avgdeg3}
+avgdeg <- mean(degree(graph))
+cat("Average Degree:", avgdeg, "\n\n")
+cat("Average In/Out-Degree:", avgdeg / 2)
+```
+
+## Degree Ratio Cluster 3
+
+```{r degratio3}
+degratio <- indeg / outdeg
+
+topfive <- order(degratio, decreasing = TRUE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("Top 5 Nodes with Highest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+topfive <- order(degratio, decreasing = FALSE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("\nTop 5 Nodes with Lowest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+```
+
+## Generate Network Cluster 4
+
+```{r graph4}
+nodes <- read.csv("Cluster_4_Nodes.csv", header = T)
+edges <- read.csv("Cluster_4_Edges.csv", header = T)
+
+graph <- graph_from_data_frame(edges, nodes, directed = T)
+
+plot(
+  graph,
+  vertex.label = NA,
+  vertex.size = 5,
+  main = "Mobi Vancouver Bike Share Network",
+  edge.arrow.size = 0.5
+)
+```
+
+## In-Degree Cluster 4
+
+```{r indeg4}
+indeg <- degree(graph, mode = "in")
+cat("In-Degree Distribution:", indeg, "\n\n")
+
+topfive <- order(indeg, decreasing = TRUE)[1:5]
+topnodes <- names(indeg)[topfive]
+topvalues <- indeg[topfive]
+
+cat("Top 5 Nodes by In-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with In-Degree:", topvalues[i], "\n")
+}
+
+hist(
+  indeg,
+  breaks = seq(min(indeg) - 0.5, max(indeg) + 0.5, by = 1),
+  col = "lightblue",
+  border = "black",
+  probability = T,
+  main = "Bike Share In-Degree Distribution",
+  xlab = "In-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(indeg), sd = sd(indeg)), col = "darkblue", lwd = 2, add = T)
+```
+
+## Out-Degree Cluster 4
+
+```{r outdeg4}
+outdeg <- degree(graph, mode = "out")
+cat("Out-Degree Distribution:", outdeg, "\n\n")
+
+topfive <- order(outdeg, decreasing = TRUE)[1:5]
+topnodes <- names(outdeg)[topfive]
+topvalues <- outdeg[topfive]
+
+cat("Top 5 Nodes by Out-Degree:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Out-Degree:", topvalues[i], "\n")
+}
+
+sinks <- names(outdeg)[outdeg == 0 && indeg != 0]
+cat("\nSink Nodes (Out-Degree = 0):\n")
+if (length(sinks) > 0) {
+  cat(sinks, sep = ", ")
+} else {
+  cat("No sink nodes found.")
+}
+
+hist(
+  outdeg,
+  breaks = seq(min(outdeg) - 0.5, max(outdeg) + 0.5, by = 1),
+  col = "lightgreen",
+  border = "black",
+  probability = T,
+  main = "Bike Share Out-Degree Distribution",
+  xlab = "Out-Degree",
+  ylab = "Density",
+  ylim = c(0, 0.2)
+)
+
+curve(dnorm(x, mean = mean(outdeg), sd = sd(outdeg)), col = "darkgreen", lwd = 2, add = T)
+```
+
+## Average Degree Cluster 4
+
+```{r avgdeg4}
+avgdeg <- mean(degree(graph))
+cat("Average Degree:", avgdeg, "\n\n")
+cat("Average In/Out-Degree:", avgdeg / 2)
+```
+
+## Degree Ratio Cluster 4
+
+```{r degratio4}
+degratio <- indeg / outdeg
+
+topfive <- order(degratio, decreasing = TRUE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("Top 5 Nodes with Highest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+topfive <- order(degratio, decreasing = FALSE)[1:5]
+topnodes <- names(degratio)[topfive]
+topvalues <- degratio[topfive]
+
+cat("\nTop 5 Nodes with Lowest Degree Ratio:\n")
+for (i in 1:5) {
+  cat("Node:", topnodes[i], " with Degree Ratio:", topvalues[i], "\n")
+}
+
+```
